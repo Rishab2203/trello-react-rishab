@@ -31,6 +31,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         checkLists: [...state.checkLists, ...action.data],
+        newCheckListName: "",
       };
     case "loading":
       return {
@@ -61,15 +62,17 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
   };
 
   const handleAddCheckList = async () => {
-    try {
-      const response = await addCheckListApi(
-        selectedCard.id,
-        state.newCheckListName
-      );
-      console.log("newCheckLIst", response);
-      dispatch({ type: "checkLists", data: [response.data] });
-    } catch (err) {
-      console.log("Error adding new checkList ", err.message);
+    if (state.newCheckListName != "") {
+      try {
+        const response = await addCheckListApi(
+          selectedCard.id,
+          state.newCheckListName
+        );
+        console.log("newCheckLIst", response);
+        dispatch({ type: "checkLists", data: [response.data] });
+      } catch (err) {
+        console.log("Error adding new checkList ", err.message);
+      }
     }
   };
 
@@ -89,7 +92,7 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
     fetchCheckList(selectedCard.id);
   }, [selectedCard]);
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog className="max-h-[720px]" open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
           <span className="text-xl font-semibold m-auto">
@@ -108,7 +111,7 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
             </Button>
           </div>
         </DialogHeader>
-        <div className="flex flex-col gap-2.5 ">
+        <div className="flex flex-col gap-2.5  ">
           {state.loading ? (
             <h1>Loading..</h1>
           ) : state.checkLists.length > 0 ? (

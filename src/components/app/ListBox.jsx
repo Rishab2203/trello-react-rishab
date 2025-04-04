@@ -65,7 +65,7 @@ const ListBox = ({ list, handleArchiveList }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [open, setOpen] = useState(false);
 
-  const handleDeleteCard = async (id) => {
+  const handleDeleteCard = async (id, e) => {
     try {
       const response = await deleteCardApi(id);
       dispatch({ type: "deleteCard", id: id });
@@ -74,10 +74,12 @@ const ListBox = ({ list, handleArchiveList }) => {
     }
   };
 
-  const handleCardClick = (card) => {
-    setOpen(!open);
-    console.log(card);
-    dispatch({ type: "card", selectCard: card });
+  const handleCardClick = (card, e) => {
+    if (e.target === e.currentTarget) {
+      setOpen(!open);
+      console.log(card);
+      dispatch({ type: "card", selectCard: card });
+    }
   };
 
   const handleAddCard = () => {
@@ -128,7 +130,7 @@ const ListBox = ({ list, handleArchiveList }) => {
       <Card className="w-[350px] h-fit min-w-[300px] ">
         <CardHeader className="flex justify-between items-center">
           <CardTitle>{list["name"]}</CardTitle>
-          <Button onClick={handleArchiveList} variant={"custom"}>
+          <Button className="r" onClick={handleArchiveList} variant={"custom"}>
             <IoArchiveOutline />
           </Button>
         </CardHeader>
@@ -138,13 +140,13 @@ const ListBox = ({ list, handleArchiveList }) => {
           ) : (
             state.cards.map((card) => (
               <div
-                onClick={() => handleCardClick(card)}
+                onClick={(e) => handleCardClick(card, e)}
                 key={card.id}
                 className="flex w-full justify-between hover:bg-gray-200 p-1 px-1.5 mb-0.5"
               >
                 <span>{card["name"]}</span>
                 <button
-                  className="w-6"
+                  className="relative z-10 p-0.5 rounded-[50%] hover:bg-white cursor-pointer w-6"
                   onClick={() => handleDeleteCard(card.id)}
                 >
                   <MdOutlineDeleteForever size={"1.5rem"} />

@@ -42,7 +42,11 @@ const Boards = () => {
                   backgroundRepeat: "no-repeat",
                   backgroundPosition: "center",
                 }}
-                onClick={() => navigate(`/boards/${board.id}`)}
+                onClick={() =>
+                  navigate(`/boards/${board.id}`, {
+                    state: { board: board["name"] },
+                  })
+                }
               >
                 {board["name"]}
               </button>
