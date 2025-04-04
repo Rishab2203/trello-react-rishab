@@ -1,8 +1,19 @@
 import axios from "axios";
 
-const baseUrl = import.meta.env.VITE_BASE_URL;
-const API = import.meta.env.VITE_API_KEY;
-const token = import.meta.env.VITE_API_TOKEN;
+const baseUrl = process.env.VITE_BASE_URL || import.meta.env.VITE_BASE_URL;
+const API = process.env.VITE_API_KEY || import.meta.env.VITE_API_KEY;
+const token = process.env.VITE_API_TOKEN || import.meta.env.VITE_API_TOKEN;
+
+export const getAllBoardsApi = async () => {
+  try {
+    const response = await axios.get(
+      `${baseUrl}members/me/boards?key=${API}&token=${token}`
+    );
+    return response;
+  } catch (err) {
+    console.log("Error adding board", err.message);
+  }
+};
 
 export const addNewBoard = async (boardName) => {
   try {

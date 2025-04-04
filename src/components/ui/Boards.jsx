@@ -2,6 +2,7 @@ import React, { use, useEffect, useState } from "react";
 import axios from "axios";
 import { AddBoardModal } from "../app/AddBoardModal";
 import { useNavigate } from "react-router-dom";
+import { getAllBoardsApi } from "../../services/utils";
 
 const Boards = () => {
   const [boards, setBoards] = useState([]);
@@ -12,9 +13,7 @@ const Boards = () => {
     async function fetchBoards() {
       try {
         setLoading(true);
-        const response = await axios.get(
-          "https://api.trello.com/1/members/me/boards?key=87914a0e1a430d48d408db9396f9bb0b&token=ATTA553f5fcddd181a2dfd5393b5ee0f55b0b0c045feebdfb8eafec075d827ae6d051C652DE1"
-        );
+        const response = await getAllBoardsApi();
         setBoards(response.data);
       } catch (err) {
         console.log(err.message);
