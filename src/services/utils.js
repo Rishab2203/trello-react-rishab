@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const baseUrl = process.env.VITE_BASE_URL || import.meta.env.VITE_BASE_URL;
-const API = process.env.API_KEY || import.meta.env.VITE_API_KEY;
+const API = process.env.API || import.meta.env.VITE_API_KEY;
 const token = process.env.VITE_API_TOKEN || import.meta.env.VITE_API_TOKEN;
 
 export const getAllBoardsApi = async () => {
