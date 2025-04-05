@@ -11,24 +11,25 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function AddBoardModal({ setBoards }) {
   const [newBoardName, setNewBoardName] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleCreateBoard = (board) => {
-    console.log("request");
     async function newBoard() {
       try {
         const result = await addNewBoard(board);
         console.log(result.data);
-        if (result.status === 200) {
-          setNewBoardName("");
-          setOpen(false);
-          setBoards((prev) => [...prev, result.data]);
-        }
+        toast.success("Board has been created.");
+
+        setNewBoardName("");
+        setOpen(false);
+        setBoards((prev) => [...prev, result.data]);
       } catch (err) {
         console.log(err);
+        toast.error("Something went wrong while creating the board.");
       }
     }
     newBoard();

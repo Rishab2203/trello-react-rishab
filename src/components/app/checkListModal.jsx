@@ -13,6 +13,8 @@ import {
   deleteCheckListApi,
 } from "../../services/utils";
 import CheckListCard from "./checkListCard";
+import { toast } from "sonner";
+
 const initialState = {
   checkLists: [],
   loading: false,
@@ -54,10 +56,11 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
     try {
       console.log("in");
       const response = await deleteCheckListApi(checklistId);
-
+      toast.success("New checkList deleted successfully.");
       dispatch({ type: "deleteCheckList", id: checklistId });
     } catch (err) {
       console.log("Error adding new checkList ", err.message);
+      toast.error("Error deleting new Checklist");
     }
   };
 
@@ -68,10 +71,11 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
           selectedCard.id,
           state.newCheckListName
         );
-        console.log("newCheckLIst", response);
         dispatch({ type: "checkLists", data: [response.data] });
+        toast.success("New checkList added successfully.");
       } catch (err) {
         console.log("Error adding new checkList ", err.message);
+        toast.error("Error adding new Checklist");
       }
     }
   };

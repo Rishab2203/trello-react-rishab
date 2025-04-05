@@ -6,6 +6,7 @@ import { getListApi } from "../services/utils";
 import ListBox from "../components/app/ListBox";
 import { Input } from "../components/ui/input";
 import { createListInBoardApi, archiveListApi } from "../services/utils";
+import { toast } from "sonner";
 
 const initialState = {
   lists: [],
@@ -58,8 +59,10 @@ const BoardInfo = () => {
     try {
       const response = await archiveListApi(listId);
       dispatch({ type: "archiveList", id: listId });
+      toast.success("List removed successfully.");
     } catch (err) {
       console.log(err.message);
+      toast.error("Error removing List.");
     }
   };
 
@@ -68,8 +71,10 @@ const BoardInfo = () => {
       try {
         const response = await createListInBoardApi(state.newListName, boardId);
         dispatch({ type: "addListItems", data: [response.data] });
+        toast.success("List Added successfully.");
       } catch (err) {
         console.log(err.message);
+        toast.error("Error Adding List. Try Again!");
       }
     }
     addList();

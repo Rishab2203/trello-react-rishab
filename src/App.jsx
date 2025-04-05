@@ -6,7 +6,7 @@ import {
 import "./App.css";
 import Home from "./pages/Home";
 import BoardInfo from "./pages/BoardInfo";
-
+import { Toaster } from "sonner";
 function App() {
   const router = createBrowserRouter([
     {
@@ -20,6 +20,7 @@ function App() {
   ]);
   return (
     <>
+      <Toaster richColors position="bottom-right" />
       <RouterProvider router={router} />
     </>
   );

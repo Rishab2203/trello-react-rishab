@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { IoArchiveOutline } from "react-icons/io5";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import CheckListModal from "./checkListModal";
+import { toast } from "sonner";
 
 const initialState = {
   cards: [],
@@ -69,8 +70,10 @@ const ListBox = ({ list, handleArchiveList }) => {
     try {
       const response = await deleteCardApi(id);
       dispatch({ type: "deleteCard", id: id });
+      toast.success("Card deleted successfully.");
     } catch (err) {
       console.log(err.message);
+      toast.error("Error deleting card.");
     }
   };
 
@@ -90,9 +93,11 @@ const ListBox = ({ list, handleArchiveList }) => {
           console.log("addCard", response, [response.data]);
           dispatch({ type: "cardsData", value: [response.data] });
           dispatch({ type: "addCard" });
+          toast.success("Card added successfully.");
         }
       } catch (err) {
         console.log(err.message);
+        toast.error("Error adding card.");
       }
     }
     if (state.newCardName != "") {
