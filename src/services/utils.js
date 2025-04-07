@@ -1,14 +1,8 @@
-import axios from "axios";
-
-const baseUrl = import.meta.env.VITE_BASE_URL;
-const API = import.meta.env.VITE_API_KEY;
-const token = import.meta.env.VITE_API_TOKEN;
+import axiosInstance from "../http/axios";
 
 export const getAllBoardsApi = async () => {
   try {
-    const response = await axios.get(
-      `${baseUrl}members/me/boards?key=${API}&token=${token}`
-    );
+    const response = await axiosInstance.get(`/members/me/boards`);
     return response;
   } catch (err) {
     console.log("Error adding board", err.message);
@@ -17,8 +11,8 @@ export const getAllBoardsApi = async () => {
 
 export const addNewBoard = async (boardName) => {
   try {
-    const response = await axios.post(
-      `${baseUrl}boards?name=${boardName}&prefs_background=blue&key=${API}&token=${token}`
+    const response = await axiosInstance.post(
+      `/boards?name=${boardName}&prefs_background=blue`
     );
     return response;
   } catch (err) {
@@ -28,9 +22,7 @@ export const addNewBoard = async (boardName) => {
 
 export const getListApi = async (boardID) => {
   try {
-    const response = await axios.get(
-      `${baseUrl}boards/${boardID}/lists?key=${API}&token=${token}`
-    );
+    const response = await axiosInstance.get(`/boards/${boardID}/lists`);
     return response.data;
   } catch (err) {
     console.log("Error getting list", err.message);
@@ -39,9 +31,7 @@ export const getListApi = async (boardID) => {
 
 export const getCardsInListApi = async (listId) => {
   try {
-    const response = await axios.get(
-      `${baseUrl}lists/${listId}/cards?key=${API}&token=${token}`
-    );
+    const response = await axiosInstance.get(`/lists/${listId}/cards`);
     return response.data;
   } catch (err) {
     console.log("Error getting cards", err.message);
@@ -50,8 +40,8 @@ export const getCardsInListApi = async (listId) => {
 
 export const createCardInListApi = async (cardName, listId) => {
   try {
-    const response = await axios.post(
-      `${baseUrl}cards?name=${cardName}&idList=${listId}&key=${API}&token=${token}`
+    const response = await axioaxiosInstances.post(
+      `/cards?name=${cardName}&idList=${listId}`
     );
     console.log(response);
     return response;
@@ -62,8 +52,8 @@ export const createCardInListApi = async (cardName, listId) => {
 
 export const createListInBoardApi = async (listName, boardId) => {
   try {
-    const response = await axios.post(
-      `${baseUrl}boards/${boardId}/lists?name=${listName}&key=${API}&token=${token}`
+    const response = await axiosInstance.post(
+      `/boards/${boardId}/lists?name=${listName}`
     );
     return response;
   } catch (err) {
@@ -73,8 +63,8 @@ export const createListInBoardApi = async (listName, boardId) => {
 
 export const archiveListApi = async (listId) => {
   try {
-    const response = await axios.put(
-      `${baseUrl}lists/${listId}/closed?value=true&key=${API}&token=${token}`
+    const response = await axiosInstance.put(
+      `/lists/${listId}/closed?value=true`
     );
     return response;
   } catch (err) {
@@ -84,9 +74,7 @@ export const archiveListApi = async (listId) => {
 
 export const deleteCardApi = async (cardId) => {
   try {
-    const response = await axios.delete(
-      `${baseUrl}cards/${cardId}?key=${API}&token=${token}`
-    );
+    const response = await axiosInstance.delete(`/cards/${cardId}`);
     return response;
   } catch (err) {
     console.log("Error archieving list in board", err.message);
@@ -95,9 +83,7 @@ export const deleteCardApi = async (cardId) => {
 
 export const getCheckListsApi = async (cardId) => {
   try {
-    const response = await axios.get(
-      `${baseUrl}cards/${cardId}/checklists?key=${API}&token=${token}`
-    );
+    const response = await axiosInstance.get(`/cards/${cardId}/checklists`);
     return response;
   } catch (err) {
     console.log("Error getting checklist in list", err.message);
@@ -106,8 +92,8 @@ export const getCheckListsApi = async (cardId) => {
 
 export const addCheckListApi = async (cardId, checkListName) => {
   try {
-    const response = await axios.post(
-      `${baseUrl}cards/${cardId}/checklists?name=${checkListName}&key=${API}&token=${token}`
+    const response = await axiosInstance.post(
+      `/cards/${cardId}/checklists?name=${checkListName}`
     );
     return response;
   } catch (err) {
@@ -117,8 +103,8 @@ export const addCheckListApi = async (cardId, checkListName) => {
 
 export const addCheckItemApi = async (checkListId, checkItemName) => {
   try {
-    const response = await axios.post(
-      `${baseUrl}checklists/${checkListId}/checkItems?name=${checkItemName}&key=${API}&token=${token}`
+    const response = await axiosInstance.post(
+      `/checklists/${checkListId}/checkItems?name=${checkItemName}`
     );
     return response;
   } catch (err) {
@@ -128,8 +114,8 @@ export const addCheckItemApi = async (checkListId, checkItemName) => {
 
 export const getCheckItemsApi = async (checkListId) => {
   try {
-    const response = await axios.get(
-      `${baseUrl}checklists/${checkListId}/checkItems?key=${API}&token=${token}`
+    const response = await axaxiosInstanceios.get(
+      `/checklists/${checkListId}/checkItems`
     );
     return response;
   } catch (err) {
@@ -139,8 +125,8 @@ export const getCheckItemsApi = async (checkListId) => {
 
 export const deleteCheckItemApi = async (checkListId, checkItemId) => {
   try {
-    const response = await axios.delete(
-      `${baseUrl}checklists/${checkListId}/checkItems/${checkItemId}?key=${API}&token=${token}`
+    const response = await axiosInstance.delete(
+      `/checklists/${checkListId}/checkItems/${checkItemId}`
     );
     return response;
   } catch (err) {
@@ -150,9 +136,7 @@ export const deleteCheckItemApi = async (checkListId, checkItemId) => {
 
 export const deleteCheckListApi = async (checkListId) => {
   try {
-    const response = await axios.delete(
-      `${baseUrl}checklists/${checkListId}?key=${API}&token=${token}`
-    );
+    const response = await axiosInstance.delete(`/checklists/${checkListId}`);
     return response;
   } catch (err) {
     console.log("Error adding checkItem in checklist", err.message);
@@ -161,8 +145,8 @@ export const deleteCheckListApi = async (checkListId) => {
 
 export const updateCheckItemApi = async (cardId, checkItemId, state) => {
   try {
-    const response = await axios.put(
-      `${baseUrl}cards/${cardId}/checkItem/${checkItemId}?state=${state}&key=${API}&token=${token}`
+    const response = await axiosInstance.put(
+      `/cards/${cardId}/checkItem/${checkItemId}?state=${state}`
     );
     return response;
   } catch (err) {

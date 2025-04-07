@@ -127,11 +127,14 @@ const ListBox = ({ list, handleArchiveList }) => {
 
   return (
     <>
-      <CheckListModal
-        open={open}
-        setOpen={setOpen}
-        selectedCard={state.selectedCard}
-      />
+      {open && (
+        <CheckListModal
+          open={open}
+          setOpen={setOpen}
+          selectedCard={state.selectedCard}
+        />
+      )}
+
       <Card className="w-[350px] h-fit min-w-[300px] ">
         <CardHeader className="flex justify-between items-center">
           <CardTitle>{list["name"]}</CardTitle>
