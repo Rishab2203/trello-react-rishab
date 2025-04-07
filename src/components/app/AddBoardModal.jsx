@@ -12,21 +12,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { addBoard } from "../../redux/slices/BoardSlice";
 
-export function AddBoardModal({ setBoards }) {
+export function AddBoardModal() {
   const [newBoardName, setNewBoardName] = useState("");
   const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const handleCreateBoard = (board) => {
     async function newBoard() {
       try {
-        const result = await addNewBoard(board);
+        const result = await dispatch(addBoard(board)).unwrap();
         console.log(result.data);
         toast.success("Board has been created.");
 
         setNewBoardName("");
         setOpen(false);
-        setBoards((prev) => [...prev, result.data]);
       } catch (err) {
         console.log(err);
         toast.error("Something went wrong while creating the board.");

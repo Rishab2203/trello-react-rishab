@@ -1,27 +1,18 @@
 import React, { use, useEffect, useState } from "react";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 import { AddBoardModal } from "../app/AddBoardModal";
 import { useNavigate } from "react-router-dom";
-import { getAllBoardsApi } from "../../services/utils";
+
+import { fetchBoards } from "../../redux/slices/BoardSlice";
 
 const Boards = () => {
-  const [boards, setBoards] = useState([]);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+  const { loading, error, boards } = useSelector((state) => state.board);
+
   useEffect(() => {
-    async function fetchBoards() {
-      try {
-        setLoading(true);
-        const response = await getAllBoardsApi();
-        setBoards(response.data);
-      } catch (err) {
-        console.log(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchBoards();
+    dispatch(fetchBoards());
   }, []);
   return (
     <div className="flex p-6 gap-10 flex-wrap mt-32 justify-around">
@@ -52,7 +43,7 @@ const Boards = () => {
               </button>
             );
           })}
-          <AddBoardModal setBoards={setBoards} />
+          <AddBoardModal />
         </>
       )}
     </div>
