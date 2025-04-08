@@ -17,13 +17,14 @@ import { IoArchiveOutline } from "react-icons/io5";
 import { MdOutlineDeleteForever } from "react-icons/md";
 import CheckListModal from "./checkListModal";
 import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import { selectCard } from "../../redux/slices/CardSlice";
 
 const initialState = {
   cards: [],
   loading: false,
   addCard: false,
   newCardName: "",
-  selectedCard: "",
 };
 
 const reducer = (state, action) => {
@@ -54,17 +55,14 @@ const reducer = (state, action) => {
       ...state,
       cards: updated,
     };
-  } else if (action.type === "card") {
-    return {
-      ...state,
-      selectedCard: action.selectCard,
-    };
   }
 };
 
 const ListBox = ({ list, handleArchiveList }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const reduxDispatch = useDispatch();
 
   const handleDeleteCard = async (id, e) => {
     try {
@@ -80,8 +78,8 @@ const ListBox = ({ list, handleArchiveList }) => {
   const handleCardClick = (card, e) => {
     if (e.target === e.currentTarget) {
       setOpen(!open);
-
-      dispatch({ type: "card", selectCard: card });
+      console.log(card);
+      reduxDispatch(selectCard(card));
     }
   };
 
@@ -90,6 +88,7 @@ const ListBox = ({ list, handleArchiveList }) => {
       try {
         const response = await createCardInListApi(state.newCardName, list.id);
         if (response.status == 200) {
+          console.log("addCard", response, [response.data]);
           dispatch({ type: "cardsData", value: [response.data] });
           dispatch({ type: "addCard" });
           toast.success("Card added successfully.");
@@ -109,7 +108,7 @@ const ListBox = ({ list, handleArchiveList }) => {
       try {
         dispatch({ type: "loading" });
         const response = await getCardsInListApi(list.id);
-
+        console.log("fetch", response);
         if (response) {
           dispatch({ type: "cardsData", value: response });
         }
@@ -126,13 +125,7 @@ const ListBox = ({ list, handleArchiveList }) => {
 
   return (
     <>
-      {open && (
-        <CheckListModal
-          open={open}
-          setOpen={setOpen}
-          selectedCard={state.selectedCard}
-        />
-      )}
+      {open && <CheckListModal open={open} setOpen={setOpen} />}
 
       <Card className="w-[350px] h-fit min-w-[300px] ">
         <CardHeader className="flex justify-between items-center">

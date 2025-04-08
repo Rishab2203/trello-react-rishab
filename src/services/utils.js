@@ -25,6 +25,16 @@ export const addNewBoard = async (boardName) => {
     console.log("Error adding board", err.message);
   }
 };
+export const createListInBoardApi = async (listName, boardId) => {
+  try {
+    const response = await axios.post(
+      `${baseUrl}boards/${boardId}/lists?name=${listName}&key=${API}&token=${token}`
+    );
+    return response;
+  } catch (err) {
+    console.log("Error adding list in board", err.message);
+  }
+};
 
 export const getAllListsApi = async (boardID) => {
   try {
@@ -34,6 +44,16 @@ export const getAllListsApi = async (boardID) => {
     return response;
   } catch (err) {
     console.log("Error getting list", err.message);
+  }
+};
+export const archiveListApi = async (listId) => {
+  try {
+    const response = await axios.put(
+      `${baseUrl}lists/${listId}/closed?value=true&key=${API}&token=${token}`
+    );
+    return response;
+  } catch (err) {
+    console.log("Error archieving list in board", err.message);
   }
 };
 
@@ -57,28 +77,6 @@ export const createCardInListApi = async (cardName, listId) => {
     return response;
   } catch (err) {
     console.log("Error adding card in list", err.message);
-  }
-};
-
-export const createListInBoardApi = async (listName, boardId) => {
-  try {
-    const response = await axios.post(
-      `${baseUrl}boards/${boardId}/lists?name=${listName}&key=${API}&token=${token}`
-    );
-    return response;
-  } catch (err) {
-    console.log("Error adding list in board", err.message);
-  }
-};
-
-export const archiveListApi = async (listId) => {
-  try {
-    const response = await axios.put(
-      `${baseUrl}lists/${listId}/closed?value=true&key=${API}&token=${token}`
-    );
-    return response;
-  } catch (err) {
-    console.log("Error archieving list in board", err.message);
   }
 };
 

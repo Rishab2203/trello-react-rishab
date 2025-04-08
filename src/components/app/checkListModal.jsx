@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,50 +14,26 @@ import {
 } from "../../services/utils";
 import CheckListCard from "./checkListCard";
 import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
 
-const initialState = {
-  checkLists: [],
-  loading: false,
-  addCheckList: false,
-  newCheckListName: "",
-};
+import {
+  addNewChecklist,
+  deleteChecklist,
+  insertChecklists,
+} from "../../redux/slices/CardSlice";
 
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "checkListName":
-      return {
-        ...state,
-        newCheckListName: action.value,
-      };
-    case "checkLists":
-      return {
-        ...state,
-        checkLists: [...state.checkLists, ...action.data],
-        newCheckListName: "",
-      };
-    case "loading":
-      return {
-        ...state,
-        loading: !state.loading,
-      };
-    case "deleteCheckList":
-      const updated = state.checkLists.filter((item) => item.id != action.id);
-      return {
-        ...state,
-        checkLists: updated,
-      };
-  }
-};
+const CheckListModal = ({ open, setOpen }) => {
+  const [loading, setLoading] = useState(false);
+  const [newCheckListName, setNewCheckListName] = useState("");
 
-const CheckListModal = ({ open, setOpen, selectedCard }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const { selectedCard, checklists } = useSelector((state) => state.card);
+  const dispatch = useDispatch();
 
   const handleDeleteCheckList = async (checklistId) => {
     try {
-      console.log("in");
       const response = await deleteCheckListApi(checklistId);
+      dispatch(deleteChecklist(checklistId));
       toast.success("New checkList deleted successfully.");
-      dispatch({ type: "deleteCheckList", id: checklistId });
     } catch (err) {
       console.log("Error adding new checkList ", err.message);
       toast.error("Error deleting new Checklist");
@@ -65,13 +41,14 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
   };
 
   const handleAddCheckList = async () => {
-    if (state.newCheckListName != "") {
+    if (newCheckListName != "") {
       try {
         const response = await addCheckListApi(
           selectedCard.id,
-          state.newCheckListName
+          newCheckListName
         );
-        dispatch({ type: "checkLists", data: [response.data] });
+        dispatch(addNewChecklist(response.data));
+
         toast.success("New checkList added successfully.");
       } catch (err) {
         console.log("Error adding new checkList ", err.message);
@@ -82,19 +59,21 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
 
   async function fetchCheckList(cardId) {
     try {
-      dispatch({ type: "loading" });
+      setLoading(true);
       const response = await getCheckListsApi(cardId);
-      console.log("fetchchekLists", response);
-      dispatch({ type: "checkLists", data: response.data });
+
+      dispatch(insertChecklists(response.data));
     } catch (err) {
       console.log("Error fetching checkList ", err.message);
     } finally {
-      dispatch({ type: "loading" });
+      setLoading(false);
     }
   }
   useEffect(() => {
-    fetchCheckList(selectedCard.id);
-  }, [selectedCard]);
+    if (!checklists[selectedCard.id]) {
+      fetchCheckList(selectedCard.id);
+    }
+  }, [selectedCard, checklists]);
   return (
     <Dialog className="max-h-[720px]" open={open} onOpenChange={setOpen}>
       <DialogContent>
@@ -104,11 +83,9 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
           </span>
           <div className="flex gap-1">
             <Input
-              value={state.newCheckListName}
+              value={newCheckListName}
               placeholder="Enter checklist"
-              onChange={(e) =>
-                dispatch({ type: "checkListName", value: e.target.value })
-              }
+              onChange={(e) => setNewCheckListName(e.target.value)}
             />
             <Button onClick={handleAddCheckList} variant={"custom"}>
               Add
@@ -116,10 +93,10 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
           </div>
         </DialogHeader>
         <div className="flex flex-col gap-2.5  ">
-          {state.loading ? (
+          {loading ? (
             <h1>Loading..</h1>
-          ) : state.checkLists.length > 0 ? (
-            state.checkLists.map((checklist) => {
+          ) : (
+            (checklists[selectedCard.id] || []).map((checklist) => {
               return (
                 <CheckListCard
                   key={checklist.id}
@@ -130,8 +107,6 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
                 />
               );
             })
-          ) : (
-            <h1 className="text-xl font-semibold text-center">No Items</h1>
           )}
         </div>
       </DialogContent>
@@ -140,6 +115,3 @@ const CheckListModal = ({ open, setOpen, selectedCard }) => {
 };
 
 export default CheckListModal;
-<DialogHeader>
-  <DialogTitle>Are you absolutely sure?</DialogTitle>
-</DialogHeader>;

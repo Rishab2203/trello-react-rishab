@@ -3,6 +3,7 @@ import boardReducer from "../slices/BoardSlice";
 import loadReducer from "../slices/LoadingSlice";
 import errorReducer from "../slices/ErrorSlice";
 import listReducer from "../slices/ListSlice";
+import cardReducer from "../slices/CardSlice";
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     loading: loadReducer,
     error: errorReducer,
     list: listReducer,
+    card: cardReducer,
   },
 });
 
