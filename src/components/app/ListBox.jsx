@@ -108,7 +108,7 @@ const ListBox = ({ list, handleArchiveList }) => {
       try {
         dispatch({ type: "loading" });
         const response = await getCardsInListApi(list.id);
-        console.log("fetch", response);
+
         if (response) {
           dispatch({ type: "cardsData", value: response });
         }

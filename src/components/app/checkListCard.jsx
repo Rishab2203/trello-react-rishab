@@ -115,7 +115,7 @@ const CheckListCard = ({ checklist, handleDeleteCheckList }) => {
           {checkItems[checklist.id] ? (
             (checkItems[checklist.id] || []).map((checkItem) => {
               return (
-                <div className="flex justify-between">
+                <div key={checkItem.id} className="flex justify-between">
                   <div className="flex items-center gap-1.5">
                     <input
                       type="checkbox"
