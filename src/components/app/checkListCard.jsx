@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import {
   Card,
   CardContent,
@@ -19,65 +19,28 @@ import {
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { RxCross1 } from "react-icons/rx";
 import { Progress } from "../ui/progress";
-
-const initialState = {
-  checkItems: [],
-  loading: false,
-  addCheckItem: false,
-  newCheckItemName: "",
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "checkItemName":
-      return {
-        ...state,
-        newCheckItemName: action.value,
-      };
-    case "checkItems":
-      return {
-        ...state,
-        checkItems: [...state.checkItems, ...action.data],
-        newCheckItemName: "",
-      };
-    case "loading":
-      return {
-        ...state,
-        loading: !state.loading,
-      };
-    case "deletedCheckItem":
-      const updateDeleted = state.checkItems.filter(
-        (item) => item.id != action.id
-      );
-      return {
-        ...state,
-        checkItems: updateDeleted,
-      };
-
-    case "updateCheckItem":
-      let updateCheck = state.checkItems.map((item) => {
-        if (item.id === action.id) {
-          item.state = action.latestState;
-        }
-        return item;
-      });
-      return {
-        ...state,
-        checkItems: updateCheck,
-      };
-  }
-};
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addNewCheckitem,
+  deleteCheckitem,
+  insertCheckitems,
+  updateCheckItem,
+} from "../../redux/slices/CheckitemsSlice";
 
 const CheckListCard = ({ checklist, handleDeleteCheckList }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [loading, setLoading] = useState(false);
+  const [newCheckItemName, setNewCheckItemName] = useState("");
+  const { checkItems } = useSelector((state) => state.checkItem);
+  const reduxDispatch = useDispatch();
 
   const handleDeleteCheckItem = async (checkItemId) => {
     try {
       const response = await deleteCheckItemApi(checklist.id, checkItemId);
-      console.log("deletedCheckItem", response);
-      dispatch({ type: "deletedCheckItem", id: checkItemId });
+      reduxDispatch(
+        deleteCheckitem({ checklistId: checklist.id, checkItemId: checkItemId })
+      );
     } catch (err) {
-      console.log("Error adding new checkItems ", err.message);
+      console.log("Error deleting new checkItems ", err.message);
     }
   };
 
@@ -90,12 +53,14 @@ const CheckListCard = ({ checklist, handleDeleteCheckList }) => {
         checkItemId,
         state
       );
-      console.log("updateCheckItem", response);
-      dispatch({
-        type: "updateCheckItem",
-        id: checkItemId,
-        latestState: state,
-      });
+
+      reduxDispatch(
+        updateCheckItem({
+          checklistId: checklist.id,
+          checkItemId: checkItemId,
+          latestState: state,
+        })
+      );
     } catch (err) {
       console.log("Error updating checkItems ", err.message);
     }
@@ -103,29 +68,29 @@ const CheckListCard = ({ checklist, handleDeleteCheckList }) => {
 
   const handleAddCheckItem = async () => {
     try {
-      const response = await addCheckItemApi(
-        checklist.id,
-        state.newCheckItemName
+      const response = await addCheckItemApi(checklist.id, newCheckItemName);
+
+      reduxDispatch(
+        addNewCheckitem({ checklistId: checklist.id, data: response.data })
       );
-      console.log("newCheckItem", response);
-      dispatch({ type: "checkItems", data: [response.data] });
-    } catch (err) {
-      console.log("Error adding new checkItems ", err.message);
-    }
+    } catch (err) {}
   };
 
   async function fetchCheckItems() {
     try {
-      dispatch({ type: "loading" });
+      console.log("in");
+      setLoading(!loading);
       const response = await getCheckItemsApi(checklist.id);
-      dispatch({ type: "checkItems", data: response.data });
+      reduxDispatch(
+        insertCheckitems({ checklistId: checklist.id, data: response.data })
+      );
     } catch (err) {
       console.log("Error fetching checkItems ", err.message);
     } finally {
-      dispatch({ type: "loading" });
+      setLoading(!loading);
     }
   }
-  let progress = calProgress(state.checkItems) || 0;
+  let progress = calProgress(checkItems[checklist.id] || []) || 0;
   useEffect(() => {
     fetchCheckItems();
   }, []);
@@ -147,8 +112,8 @@ const CheckListCard = ({ checklist, handleDeleteCheckList }) => {
 
       <div className="bg-gray-300 p-2 mx-1.5 rounded-md">
         <CardContent>
-          {state.checkItems.length > 0 ? (
-            state.checkItems.map((checkItem) => {
+          {checkItems[checklist.id] ? (
+            (checkItems[checklist.id] || []).map((checkItem) => {
               return (
                 <div className="flex justify-between">
                   <div className="flex items-center gap-1.5">
@@ -177,10 +142,8 @@ const CheckListCard = ({ checklist, handleDeleteCheckList }) => {
         <CardFooter className="flex justify-between items-center gap-1 mt-3">
           <Input
             className={"bg-white"}
-            value={state.newCheckItemName}
-            onChange={(e) =>
-              dispatch({ type: "checkItemName", value: e.target.value })
-            }
+            value={newCheckItemName}
+            onChange={(e) => setNewCheckItemName(e.target.value)}
             placeholder="Add checkitem"
           />
           <Button variant={"custom"} onClick={handleAddCheckItem}>
