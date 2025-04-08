@@ -26,12 +26,12 @@ export const addNewBoard = async (boardName) => {
   }
 };
 
-export const getListApi = async (boardID) => {
+export const getAllListsApi = async (boardID) => {
   try {
     const response = await axios.get(
       `${baseUrl}boards/${boardID}/lists?key=${API}&token=${token}`
     );
-    return response.data;
+    return response;
   } catch (err) {
     console.log("Error getting list", err.message);
   }

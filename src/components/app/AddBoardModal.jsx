@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { addBoard } from "../../redux/slices/BoardSlice";
+import { addBoard } from "../../redux/AsyncThunks/thunks";
 
 export function AddBoardModal() {
   const [newBoardName, setNewBoardName] = useState("");

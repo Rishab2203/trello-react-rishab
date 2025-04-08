@@ -80,7 +80,7 @@ const ListBox = ({ list, handleArchiveList }) => {
   const handleCardClick = (card, e) => {
     if (e.target === e.currentTarget) {
       setOpen(!open);
-      console.log(card);
+
       dispatch({ type: "card", selectCard: card });
     }
   };
@@ -90,7 +90,6 @@ const ListBox = ({ list, handleArchiveList }) => {
       try {
         const response = await createCardInListApi(state.newCardName, list.id);
         if (response.status == 200) {
-          console.log("addCard", response, [response.data]);
           dispatch({ type: "cardsData", value: [response.data] });
           dispatch({ type: "addCard" });
           toast.success("Card added successfully.");
@@ -110,7 +109,7 @@ const ListBox = ({ list, handleArchiveList }) => {
       try {
         dispatch({ type: "loading" });
         const response = await getCardsInListApi(list.id);
-        console.log("fetch", response);
+
         if (response) {
           dispatch({ type: "cardsData", value: response });
         }
@@ -127,11 +126,14 @@ const ListBox = ({ list, handleArchiveList }) => {
 
   return (
     <>
-      <CheckListModal
-        open={open}
-        setOpen={setOpen}
-        selectedCard={state.selectedCard}
-      />
+      {open && (
+        <CheckListModal
+          open={open}
+          setOpen={setOpen}
+          selectedCard={state.selectedCard}
+        />
+      )}
+
       <Card className="w-[350px] h-fit min-w-[300px] ">
         <CardHeader className="flex justify-between items-center">
           <CardTitle>{list["name"]}</CardTitle>

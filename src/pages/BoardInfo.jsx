@@ -2,63 +2,32 @@ import React, { useEffect, useReducer } from "react";
 import Navbar from "../components/ui/Navbar";
 import { Button } from "../components/ui/button";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { getListApi } from "../services/utils";
 import ListBox from "../components/app/ListBox";
 import { Input } from "../components/ui/input";
-import { createListInBoardApi, archiveListApi } from "../services/utils";
+import {
+  addNewList,
+  fetchLists,
+  archiveList,
+} from "../redux/AsyncThunks/thunks";
+import { setAddList, newList } from "../redux/slices/ListSlice";
 import { toast } from "sonner";
-
-const initialState = {
-  lists: [],
-  loading: false,
-  addList: false,
-  newListName: "",
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case "newListName":
-      return {
-        ...state,
-        newListName: action.value,
-      };
-    case "addListItems":
-      return {
-        ...state,
-        lists: [...state.lists, ...action.data],
-        newListName: "",
-      };
-    case "loading":
-      return {
-        ...state,
-        loading: !state.loading,
-      };
-    case "archiveList":
-      const updated = state.lists.filter((item) => item.id != action.id);
-      return {
-        ...state,
-        lists: updated,
-      };
-    case "addList":
-      return {
-        ...state,
-        addList: !state.addList,
-        newListName: "",
-      };
-  }
-};
+import { useDispatch, useSelector } from "react-redux";
+import Loader from "../components/ui/Loader";
 
 const BoardInfo = () => {
   const navigate = useNavigate();
   const { boardId } = useParams();
-  const [state, dispatch] = useReducer(reducer, initialState);
+
   const location = useLocation();
   const { board } = location.state || {};
+  const dispatch = useDispatch();
+  const { lists, newListName, addList } = useSelector((state) => state.list);
+  const { loading } = useSelector((state) => state.loading);
+  const { error } = useSelector((state) => state.error);
 
   const handleArchiveList = async (listId) => {
     try {
-      const response = await archiveListApi(listId);
-      dispatch({ type: "archiveList", id: listId });
+      const response = await dispatch(archiveList(listId));
       toast.success("List removed successfully.");
     } catch (err) {
       console.log(err.message);
@@ -66,38 +35,20 @@ const BoardInfo = () => {
     }
   };
 
-  const handleAddList = () => {
-    async function addList() {
-      try {
-        const response = await createListInBoardApi(state.newListName, boardId);
-        dispatch({ type: "addListItems", data: [response.data] });
-        toast.success("List Added successfully.");
-      } catch (err) {
-        console.log(err.message);
-        toast.error("Error Adding List. Try Again!");
-      }
+  const handleAddList = async () => {
+    try {
+      const response = await dispatch(
+        addNewList({ listName: newListName, boardID: boardId })
+      );
+      toast.success("List Added successfully.");
+    } catch (err) {
+      console.log(err.message);
+      toast.error("Error Adding List. Try Again!");
     }
-    addList();
-  };
-
-  const handleCancelAdd = () => {
-    dispatch({ type: "addList" });
   };
 
   useEffect(() => {
-    async function fetchLists() {
-      try {
-        dispatch({ type: "loading" });
-        const response = await getListApi(boardId);
-
-        dispatch({ type: "addListItems", data: response });
-      } catch (err) {
-        console.log(err.message);
-      } finally {
-        dispatch({ type: "loading" });
-      }
-    }
-    fetchLists();
+    dispatch(fetchLists(boardId));
   }, []);
 
   return (
@@ -119,9 +70,8 @@ const BoardInfo = () => {
       </div>
 
       <div className="flex mt-40 gap-6 overflow-scroll h-[82vh] p-3 ">
-        {!state.loading ? (
-          state.lists.map((list) => {
-            console.log("list", list);
+        {!loading ? (
+          lists.map((list) => {
             return (
               <ListBox
                 key={list.id}
@@ -131,30 +81,31 @@ const BoardInfo = () => {
             );
           })
         ) : (
-          <span>Loading</span>
+          <Loader />
         )}
         <div className="flex flex-col h-fit gap-6 rounded-xl border py-6 p-4 shadow-sm w-60">
-          {state.addList ? (
+          {addList ? (
             <>
               <Input
-                value={state.newListName}
-                onChange={(e) =>
-                  dispatch({ type: "newListName", value: e.target.value })
-                }
+                value={newListName}
+                onChange={(e) => dispatch(newList(e.target.value))}
                 placeholder="Enter list name"
               ></Input>
               <div className="flex justify-center gap-2.5 w-full">
                 <Button onClick={() => handleAddList()} variant={"custom"}>
                   Add
                 </Button>
-                <Button onClick={handleCancelAdd} variant={"custom"}>
+                <Button
+                  onClick={() => dispatch(setAddList())}
+                  variant={"custom"}
+                >
                   Cancel
                 </Button>
               </div>
             </>
           ) : (
             <Button
-              onClick={() => dispatch({ type: "addList" })}
+              onClick={() => dispatch(setAddList())}
               className={"w-full "}
               variant={"custom"}
             >

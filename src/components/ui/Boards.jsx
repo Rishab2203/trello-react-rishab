@@ -1,15 +1,18 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AddBoardModal } from "../app/AddBoardModal";
 import { useNavigate } from "react-router-dom";
 
-import { fetchBoards } from "../../redux/slices/BoardSlice";
+import { fetchBoards } from "../../redux/AsyncThunks/thunks";
+import Loader from "./Loader";
 
 const Boards = () => {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
-  const { loading, error, boards } = useSelector((state) => state.board);
+  const { boards } = useSelector((state) => state.board);
+  const { loading } = useSelector((state) => state.loading);
+  const { error } = useSelector((state) => state.error);
 
   useEffect(() => {
     dispatch(fetchBoards());
@@ -17,7 +20,7 @@ const Boards = () => {
   return (
     <div className="flex p-6 gap-10 flex-wrap mt-32 justify-around">
       {loading ? (
-        <h1>Loading</h1>
+        <Loader />
       ) : (
         <>
           {boards.map((board) => {

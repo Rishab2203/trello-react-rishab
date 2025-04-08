@@ -1,37 +1,17 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addNewBoard, getAllBoardsApi } from "../../services/utils";
+import { createSlice } from "@reduxjs/toolkit";
 
-export const fetchBoards = createAsyncThunk("fetchBoards", async () => {
-  const response = await getAllBoardsApi();
-  return response;
-});
-
-export const addBoard = createAsyncThunk("addBoard", async (boardName) => {
-  const response = await addNewBoard(boardName);
-  return response;
-});
+import { fetchBoards, addBoard } from "../AsyncThunks/thunks";
 
 const boardSlice = createSlice({
   name: "board",
   initialState: {
     boards: [],
-    loading: false,
-    error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchBoards.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(fetchBoards.fulfilled, (state, action) => {
-        state.loading = false;
         state.boards = [...action.payload];
-      })
-      .addCase(fetchBoards.rejected, (state, action) => {
-        console.log(action.error.message);
-        state.loading = false;
-        state.error = action.error.message;
       })
       .addCase(addBoard.fulfilled, (state, action) => {
         state.boards.push(action.payload);
