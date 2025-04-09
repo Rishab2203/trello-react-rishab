@@ -31,12 +31,12 @@ const CheckListCard = ({ checklist, handleDeleteCheckList }) => {
   const [loading, setLoading] = useState(false);
   const [newCheckItemName, setNewCheckItemName] = useState("");
   const { checkItems } = useSelector((state) => state.checkItem);
-  const reduxDispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const handleDeleteCheckItem = async (checkItemId) => {
     try {
       const response = await deleteCheckItemApi(checklist.id, checkItemId);
-      reduxDispatch(
+      dispatch(
         deleteCheckitem({ checklistId: checklist.id, checkItemId: checkItemId })
       );
     } catch (err) {
@@ -54,7 +54,7 @@ const CheckListCard = ({ checklist, handleDeleteCheckList }) => {
         state
       );
 
-      reduxDispatch(
+      dispatch(
         updateCheckItem({
           checklistId: checklist.id,
           checkItemId: checkItemId,
@@ -70,18 +70,20 @@ const CheckListCard = ({ checklist, handleDeleteCheckList }) => {
     try {
       const response = await addCheckItemApi(checklist.id, newCheckItemName);
 
-      reduxDispatch(
+      dispatch(
         addNewCheckitem({ checklistId: checklist.id, data: response.data })
       );
-    } catch (err) {}
+      setNewCheckItemName("");
+    } catch (err) {
+      console.log("Error adding checkitem", err.message);
+    }
   };
 
   async function fetchCheckItems() {
     try {
-      console.log("in");
       setLoading(!loading);
       const response = await getCheckItemsApi(checklist.id);
-      reduxDispatch(
+      dispatch(
         insertCheckitems({ checklistId: checklist.id, data: response.data })
       );
     } catch (err) {

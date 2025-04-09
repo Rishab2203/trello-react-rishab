@@ -1,10 +1,5 @@
-import React, { useEffect, useReducer, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import React, { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {
@@ -48,6 +43,7 @@ const CheckListModal = ({ open, setOpen }) => {
           newCheckListName
         );
         dispatch(addNewChecklist(response.data));
+        setNewCheckListName("");
 
         toast.success("New checkList added successfully.");
       } catch (err) {

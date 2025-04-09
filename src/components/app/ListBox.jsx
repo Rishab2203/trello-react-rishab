@@ -18,56 +18,26 @@ import { MdOutlineDeleteForever } from "react-icons/md";
 import CheckListModal from "./checkListModal";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
-import { selectCard } from "../../redux/slices/CardSlice";
-
-const initialState = {
-  cards: [],
-  loading: false,
-  addCard: false,
-  newCardName: "",
-};
-
-const reducer = (state, action) => {
-  if (action.type === "cardsData") {
-    return {
-      ...state,
-      cards: [...state.cards, ...action.value],
-    };
-  } else if (action.type === "loading") {
-    return {
-      ...state,
-      loading: !state.loading,
-    };
-  } else if (action.type === "cardName") {
-    return {
-      ...state,
-      newCardName: action.value || "",
-    };
-  } else if (action.type === "addCard") {
-    return {
-      ...state,
-      addCard: !state.addCard,
-      newCardName: "",
-    };
-  } else if (action.type === "deleteCard") {
-    const updated = state.cards.filter((card) => card.id != action.id);
-    return {
-      ...state,
-      cards: updated,
-    };
-  }
-};
+import {
+  addNewCard,
+  selectCard,
+  insertCards,
+  deleteCard,
+} from "../../redux/slices/CardSlice";
 
 const ListBox = ({ list, handleArchiveList }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [addCard, setAddCard] = useState(false);
+  const [newCardName, setNewCardName] = useState("");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const reduxDispatch = useDispatch();
+  const dispatch = useDispatch();
+
+  const { cards } = useSelector((state) => state.card);
 
   const handleDeleteCard = async (id, e) => {
     try {
       const response = await deleteCardApi(id);
-      dispatch({ type: "deleteCard", id: id });
+      dispatch(deleteCard({ listId: list.id, cardId: id }));
       toast.success("Card deleted successfully.");
     } catch (err) {
       console.log(err.message);
@@ -79,45 +49,38 @@ const ListBox = ({ list, handleArchiveList }) => {
     if (e.target === e.currentTarget) {
       setOpen(!open);
       console.log(card);
-      reduxDispatch(selectCard(card));
+      dispatch(selectCard(card));
     }
   };
 
-  const handleAddCard = () => {
-    async function addCard() {
+  const handleAddCard = async () => {
+    if (newCardName != "") {
       try {
-        const response = await createCardInListApi(state.newCardName, list.id);
-        if (response.status == 200) {
-          console.log("addCard", response, [response.data]);
-          dispatch({ type: "cardsData", value: [response.data] });
-          dispatch({ type: "addCard" });
-          toast.success("Card added successfully.");
-        }
+        const response = await createCardInListApi(newCardName, list.id);
+
+        console.log("addCard", response, [response.data]);
+
+        dispatch(addNewCard({ listId: list.id, data: response.data }));
+        setAddCard(!addCard);
+        setNewCardName("");
+        toast.success("Card added successfully.");
       } catch (err) {
         console.log(err.message);
         toast.error("Error adding card.");
       }
-    }
-    if (state.newCardName != "") {
-      addCard();
     }
   };
 
   useEffect(() => {
     async function fetchCards() {
       try {
-        dispatch({ type: "loading" });
+        setLoading(!loading);
         const response = await getCardsInListApi(list.id);
-
-        if (response) {
-          dispatch({ type: "cardsData", value: response });
-        }
-
-        // setCards(response);
+        dispatch(insertCards({ listId: list.id, data: response }));
       } catch (err) {
         console.log(err.message);
       } finally {
-        dispatch({ type: "loading" });
+        setLoading(!loading);
       }
     }
     fetchCards();
@@ -135,10 +98,10 @@ const ListBox = ({ list, handleArchiveList }) => {
           </Button>
         </CardHeader>
         <CardContent>
-          {!state.loading && state.cards.length === 0 ? (
+          {!loading && cards[list.id] ? (
             <h3>No cards available</h3>
           ) : (
-            state.cards.map((card) => (
+            (cards[list.id] || []).map((card) => (
               <div
                 onClick={(e) => handleCardClick(card, e)}
                 key={card.id}
@@ -156,30 +119,25 @@ const ListBox = ({ list, handleArchiveList }) => {
           )}
         </CardContent>
         <CardFooter>
-          {state.addCard ? (
+          {addCard ? (
             <div className="flex flex-col gap-2 w-full ">
               <Input
-                value={state.newCardName}
+                value={newCardName}
                 placeholder="Enter card name"
-                onChange={(e) =>
-                  dispatch({ type: "cardName", value: e.target.value })
-                }
+                onChange={(e) => setNewCardName(e.target.value)}
               />
               <div className="flex items-center justify-end gap-1">
                 <Button onClick={() => handleAddCard()} variant={"custom"}>
                   Add
                 </Button>
-                <Button
-                  onClick={() => dispatch({ type: "addCard" })}
-                  variant={"custom"}
-                >
+                <Button onClick={() => setAddCard(!addCard)} variant={"custom"}>
                   Cancel
                 </Button>
               </div>
             </div>
           ) : (
             <Button
-              onClick={() => dispatch({ type: "addCard" })}
+              onClick={() => setAddCard(!addCard)}
               className="w-full "
               variant={"custom"}
             >
