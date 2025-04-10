@@ -40,7 +40,7 @@ export const getCardsInListApi = async (listId) => {
 
 export const createCardInListApi = async (cardName, listId) => {
   try {
-    const response = await axioaxiosInstances.post(
+    const response = await axiosInstance.post(
       `/cards?name=${cardName}&idList=${listId}`
     );
     console.log(response);
